@@ -1,0 +1,33 @@
+# SurrealDB local para desarrollo y tests de integración.
+# Usuario y contraseña root salen del .env (docker compose lo lee solo).
+name: prueba_elixir
+
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:v3.2.1
+    # La imagen corre como `nonroot`; con root RocksDB puede escribir en el
+    # volumen nombrado montado en /data sin ajustar permisos a mano.
+    user: root
+    restart: unless-stopped
+    command:
+      - start
+      - --user
+      - ${SURREALDB_USER:?set SURREALDB_USER in .env}
+      - --pass
+      - ${SURREALDB_PASS:?set SURREALDB_PASS in .env}
+      - --bind
+      - 0.0.0.0:8000
+      - rocksdb:/data/database.db
+    ports:
+      # Solo loopback: el puerto 8030 del host no queda expuesto a la red.
+      - "127.0.0.1:8030:8000"
+    volumes:
+      - surrealdb_data:/data
+    healthcheck:
+      test: ["CMD", "/surreal", "isready", "--endpoint", "http://localhost:8000"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+volumes:
+  surrealdb_data:

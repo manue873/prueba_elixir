@@ -15,7 +15,6 @@ defmodule Mix.Tasks.Surreal.Create do
   @impl Mix.Task
   def run(_args) do
     Mix.Task.run("app.config")
-
     case PruebaElixir.Surreal.Storage.up() do
       {:ok, _result} -> :ok
       {:error, error} -> Mix.raise(Exception.message(error))

@@ -4,7 +4,10 @@ defmodule PruebaElixirWeb.PingChannelTest do
   alias PruebaElixirWeb.{PingChannel, UserSocket}
 
   setup do
-    {:ok, socket} = connect(UserSocket, %{})
+    # UserSocket ahora valida usuario_id contra SurrealDB.
+    # Para tests unitarios del canal usamos socket/3 que crea un socket con
+    # assigns prefijados, saltando el connect/2 (sin necesitar la DB).
+    socket = socket(UserSocket, "test_socket", %{usuario_id: "test_user"})
     {:ok, _reply, socket} = subscribe_and_join(socket, PingChannel, "ping")
 
     %{socket: socket}
@@ -17,7 +20,7 @@ defmodule PruebaElixirWeb.PingChannelTest do
   end
 
   test "el socket enruta el topic ping al PingChannel" do
-    {:ok, socket} = connect(UserSocket, %{})
+    socket = socket(UserSocket, "test_socket_2", %{usuario_id: "test_user"})
 
     assert {:ok, _reply, %Phoenix.Socket{channel: PingChannel, topic: "ping"}} =
              subscribe_and_join(socket, "ping", %{})

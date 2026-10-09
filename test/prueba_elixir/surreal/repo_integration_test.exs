@@ -30,8 +30,12 @@ defmodule PruebaElixir.Surreal.RepoIntegrationTest do
   end
 
   test "la migración de ejemplo queda aplicada" do
-    assert {:ok, [%{version: 1, filename: "000000001_create_ejemplo.surql", applied?: true}]} =
-             Migrator.status()
+    assert {:ok, status} = Migrator.status()
+
+    assert Enum.any?(
+             status,
+             &(&1.version == 1 and &1.filename == "000000001_create_ejemplo.surql" and &1.applied?)
+           )
   end
 
   test "insert/get/all/query sobre ejemplo" do
@@ -82,10 +86,12 @@ defmodule PruebaElixir.Surreal.RepoIntegrationTest do
   end
 
   test "rollback revierte con .down.surql y migrate vuelve a aplicar" do
-    assert {:ok, [1]} = Migrator.rollback()
-    assert {:ok, [%{version: 1, applied?: false}]} = Migrator.status()
+    assert {:ok, [version]} = Migrator.rollback()
+    assert {:ok, status} = Migrator.status()
+    assert Enum.any?(status, &(&1.version == version and not &1.applied?))
 
-    assert {:ok, [1]} = Migrator.migrate()
-    assert {:ok, [%{version: 1, applied?: true}]} = Migrator.status()
+    assert {:ok, [^version]} = Migrator.migrate()
+    assert {:ok, status} = Migrator.status()
+    assert Enum.any?(status, &(&1.version == version and &1.applied?))
   end
 end

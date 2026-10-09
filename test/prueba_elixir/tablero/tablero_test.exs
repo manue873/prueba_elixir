@@ -178,7 +178,9 @@ defmodule PruebaElixir.TableroTest do
 
     test "ticket de otro proyecto bloqueado", %{ticket: t} do
       {:ok, otro} = insertar_proyecto()
-      assert {:error, :ticket_de_otro_proyecto} = Tablero.mover_ticket(otro.id, t.id, "lider", "resuelto")
+
+      assert {:error, :ticket_de_otro_proyecto} =
+               Tablero.mover_ticket(otro.id, t.id, "lider", "resuelto")
     end
   end
 
@@ -203,10 +205,12 @@ defmodule PruebaElixir.TableroTest do
 
     test "no asigna a usuario no miembro", %{proyecto: p, ticket: t} do
       {:ok, externo} = insertar_usuario()
-      assert {:error, :usuario_no_es_miembro} = Tablero.asignar_ticket(p.id, t.id, externo.id, "lider")
+
+      assert {:error, :usuario_no_es_miembro} =
+               Tablero.asignar_ticket(p.id, t.id, externo.id, "lider")
     end
 
-    test "reemplaza al responsable anterior", %{proyecto: p, ticket: t, usuario: u, lector: l} do
+    test "reemplaza al responsable anterior", %{proyecto: p, ticket: t, usuario: u, lector: _l} do
       # Primero asignar al usuario
       {:ok, _} = Tablero.asignar_ticket(p.id, t.id, u.id, "lider")
       # Añadimos al lector como desarrollador para poder asignarle
@@ -271,7 +275,7 @@ defmodule PruebaElixir.TableroTest do
 
   describe "resumen/1" do
     test "devuelve conteos por estado con los 4 estados", %{proyecto: p} do
-      {:ok, t1} = insertar_ticket(p.id, %{titulo: "T1"})
+      {:ok, _t1} = insertar_ticket(p.id, %{titulo: "T1"})
       {:ok, t2} = insertar_ticket(p.id, %{titulo: "T2"})
       PruebaElixir.Tablero.Queries.mover_ticket(t2.id, "cerrado")
 

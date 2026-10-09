@@ -46,10 +46,14 @@ defmodule PruebaElixirWeb.TableroChannel do
           |> assign(:proyecto_id, proyecto_id)
           |> assign(:rol, rol)
 
-        # Cargamos los tickets tras asignar el socket para poder usar after_join.
-        # send/2 con un mensaje propio es el patrón Phoenix para trabajo post-join.
+        tickets =
+          case Tablero.listar_tickets(proyecto_id) do
+            {:ok, t} -> serializar_lista(t)
+            _ -> []
+          end
+
         send(self(), :after_join)
-        {:ok, socket}
+        {:ok, %{tickets: tickets, rol: rol}, socket}
 
       {:error, _} ->
         {:error, %{"reason" => "sin_acceso"}}

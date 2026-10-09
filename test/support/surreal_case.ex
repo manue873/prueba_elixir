@@ -71,7 +71,7 @@ defmodule PruebaElixirWeb.SurrealCase do
   @doc "Crea la relación miembro entre un usuario y un proyecto."
   def insertar_miembro(usuario_id, proyecto_id, rol \\ "desarrollador") do
     statement = """
-    RELATE type::record("usuario", $usuario_id)->miembro->type::record("proyecto", $proyecto_id)
+    RELATE (type::record("usuario", $usuario_id))->miembro->(type::record("proyecto", $proyecto_id))
     CONTENT { rol: $rol };
     """
 
